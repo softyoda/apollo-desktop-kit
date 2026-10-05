@@ -8,4 +8,5 @@ runtime/
 previous-mode.json
 profile.local.json
 host-layout.local.json
+Apollo-Setup.cmd
 __pycache__/

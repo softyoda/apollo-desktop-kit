@@ -1,4 +1,4 @@
-param([string]$InstallRoot = "$env:LOCALAPPDATA\ApolloDesktopKit", [string]$ProfilePath = '', [switch]$PairClipboard, [switch]$SkipFirewall)
+param([string]$InstallRoot = "$env:LOCALAPPDATA\ApolloDesktopKit", [string]$ProfilePath = '', [switch]$PairClipboard, [switch]$SkipFirewall, [switch]$NoShortcut)
 . "$PSScriptRoot\Common.ps1"
 New-Item -ItemType Directory -Path $InstallRoot -Force | Out-Null
 $moonlight = Join-Path $InstallRoot 'Moonlight\Moonlight.exe'
@@ -22,11 +22,13 @@ $kit = Join-Path $InstallRoot 'kit'
 New-Item -ItemType Directory -Path $kit -Force | Out-Null
 foreach ($folder in @('windows','lib')) { Copy-Item -LiteralPath (Join-Path $KitRoot $folder) -Destination $kit -Recurse -Force }
 Copy-Item -LiteralPath (Join-Path $KitRoot 'packages.json') -Destination $kit -Force
-$link = (New-Object -ComObject WScript.Shell).CreateShortcut((Join-Path ([Environment]::GetFolderPath('Desktop')) 'Apollo - My screens.lnk'))
-$link.TargetPath = "$env:SystemRoot\System32\WindowsPowerShell\v1.0\powershell.exe"
-$link.Arguments = '-NoProfile -ExecutionPolicy Bypass -File "' + (Join-Path $kit 'windows\Start-Desktop.ps1') + '" -ProfilePath "' + $ProfilePath + '"'
-$link.WorkingDirectory = $InstallRoot
-$link.Save()
+if (!$NoShortcut) {
+    $link = (New-Object -ComObject WScript.Shell).CreateShortcut((Join-Path ([Environment]::GetFolderPath('Desktop')) 'Apollo - My screens.lnk'))
+    $link.TargetPath = "$env:SystemRoot\System32\WindowsPowerShell\v1.0\powershell.exe"
+    $link.Arguments = '-NoProfile -ExecutionPolicy Bypass -File "' + (Join-Path $kit 'windows\Start-Desktop.ps1') + '" -ProfilePath "' + $ProfilePath + '"'
+    $link.WorkingDirectory = $InstallRoot
+    $link.Save()
+}
 if (!$SkipFirewall) {
     Write-Host 'Windows may request administrator approval for the LAN-only CrossPaste firewall rules.'
     $firewallArgs='-NoProfile -ExecutionPolicy Bypass -File "' + (Join-Path $kit 'windows\Allow-ClipboardNetwork.ps1') + '" -CrossPasteExe "' + (Join-Path $InstallRoot 'CrossPaste\bin\CrossPaste.exe') + '"'

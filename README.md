@@ -34,6 +34,16 @@ Les deux instances montrent **le même bureau Windows étendu**. Elles ne créen
 
 ## Démarrage rapide pour un collègue
 
+**Client Windows simplifié :** télécharger `Apollo-Setup.cmd` dans les [Releases](https://github.com/softyoda/apollo-desktop-kit/releases), puis double-cliquer. Le fichier contient les scripts nécessaires, installe les applications dans le compte utilisateur, prépare le profil et crée **Apollo - Mes ecrans**. Inutile d'extraire un ZIP ou de conserver plusieurs scripts côte à côte. Lors de la première installation, renseigner les noms des hôtes Moonlight puis associer CrossPaste une fois ; les bureaux distants sont ouverts avant cette association pour voir le code de l'hôte sans autre outil distant. Les autorisations Windows éventuelles restent visibles.
+
+Pour distribuer un fichier déjà personnalisé, avec les noms/résolutions de son équipe :
+
+```powershell
+.\windows\Build-SingleFile.ps1 -ProfilePath .\profile.local.json -OutFile .\Mon-bureau.cmd
+```
+
+L'application hôte et les associations Moonlight doivent déjà exister. Le kit ne peut pas deviner ni transférer leurs certificats. Les instructions détaillées ci-dessous restent disponibles pour configurer l'hôte ou adapter le montage.
+
 1. Télécharger le ZIP de ce dépôt et l'extraire dans un dossier permanent.
 2. Sur le **poste de travail Windows**, lancer `Install-host.cmd`, puis suivre [la configuration de l'hôte](docs/windows-host.md). Les installateurs Apollo/Fleet restent interactifs pour les pilotes et l'élévation Windows.
 3. Sur le **portable Windows**, lancer `Install-client.cmd`. Il installe Moonlight si nécessaire, CrossPaste, un profil détectant les écrans et un raccourci sur le bureau. Voir [le guide client](docs/windows-client.md).

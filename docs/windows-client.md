@@ -2,6 +2,12 @@
 
 ## Installation
 
+Le parcours recommandé est maintenant **un seul fichier `Apollo-Setup.cmd`**, disponible dans les Releases du dépôt. Double-cliquer : le kit s'extrait dans `%LOCALAPPDATA%\ApolloDesktopKit`, installe les applications puis accompagne l'association CrossPaste. Au quotidien, utiliser le raccourci **Apollo - Mes ecrans** ou relancer le même fichier. Un profil personnalisé intégré permet d'éviter toute saisie de résolution ou de nom d'hôte.
+
+Le code CrossPaste reste demandé une seule fois. Le script vérifie qu'un appareil est associé avec envoi et réception autorisés ; il ne présente pas une simple installation comme une synchronisation déjà fonctionnelle. La connexion de bout en bout doit être validée sur les deux PC.
+
+### Parcours ZIP, pour configuration avancée
+
 Extraire le kit dans un dossier permanent, puis lancer `Install-client.cmd`. L'installation utilise `%LOCALAPPDATA%\ApolloDesktopKit`. Une installation Moonlight standard existante est réutilisée, pour conserver ses associations ; sinon le kit télécharge la version portable vérifiée.
 
 CrossPaste est lancé et configuré pour démarrer avec Windows, chiffrer les échanges et conserver les formats enrichis. Il faut associer les deux PC une première fois. Le script ouvre l'assistant d'association en terminal ; le code doit être lu sur l'hôte. Ce code n'est pas intégré au kit.
