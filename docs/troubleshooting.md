@@ -16,6 +16,10 @@ Cela explique qu'il faille parfois relâcher la fenêtre puis la reprendre sur l
 
 Pour un contributeur souhaitant poursuivre : tester des facteurs de résolution différents, des moniteurs à coordonnées négatives, le DPI mixte, le franchissement avec bouton maintenu, le retour vers une application locale, la déconnexion en cours de drag et la perte de focus. Il faut libérer les boutons à la déconnexion sans créer de clic parasite. Aucune ouverture de service de contrôle réseau supplémentaire n'est faite par ce kit.
 
+## Les raccourcis Windows agissent sur le client
+
+Le lanceur doit inclure `--capture-system-keys always`, et la fenêtre Moonlight doit avoir le focus. Le mode sans bordures est techniquement une fenêtre pour Moonlight : le réglage « capturer uniquement en plein écran » ne suffit donc pas. Fermer puis relancer les flux après mise à jour du script. Avec cette option, Win+flèches et Alt+Tab visent l'hôte quand le flux est actif.
+
 ## Deux flux montrent le même écran
 
 Vérifier `Always create Virtual Display` sur Screen2, l'état du pilote SudoVDA et le journal de cette instance. L'option `--resolution` du client ne décide pas de l'écran source. Pour Screen1 physique, vérifier l'identifiant de sortie dans Apollo et désactiver l'option virtuelle de l'application.

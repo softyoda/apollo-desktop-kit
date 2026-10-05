@@ -33,7 +33,7 @@ def main():
         used.add(name)
         b = screens[name]
         before = set(subprocess.check_output(['wmctrl','-l'],text=True).splitlines())
-        subprocess.Popen(command + ['stream',stream['host'],stream.get('app','Desktop'),'--resolution',f"{stream['width']}x{stream['height']}",'--fps',str(stream.get('fps',60)),'--display-mode','windowed','--absolute-mouse'])
+        subprocess.Popen(command + ['stream',stream['host'],stream.get('app','Desktop'),'--resolution',f"{stream['width']}x{stream['height']}",'--fps',str(stream.get('fps',60)),'--display-mode','windowed','--absolute-mouse','--capture-system-keys','always'])
         window = None
         for _ in range(150):
             current = subprocess.check_output(['wmctrl','-lx'],text=True).splitlines()

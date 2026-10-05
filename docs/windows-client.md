@@ -33,6 +33,8 @@ Ce bloc est une entrée du tableau `streams`, pas un profil complet. Voir [`exam
 
 Les dimensions explicites `width` et `height` font autorité au lancement. `renderScale` documente leur calcul ; modifier ce champ seul ne recalcule pas les dimensions d'un profil existant.
 
+Les commandes activent aussi `--capture-system-keys always` : lorsque la fenêtre Moonlight a le focus, les raccourcis Windows (Win+flèches pour ancrer une fenêtre, Win+Shift+flèches pour changer d'écran, Alt+Tab) sont transmis à l'hôte même en mode fenêtre. Cliquer dans le flux avant de les utiliser. Cela ne corrige pas le glisser-déposer continu entre deux sessions ; c'est la capture du clavier.
+
 ## Détecter automatiquement les écrans
 
 Depuis PowerShell, donner un hôte par écran, dans l'ordre gauche → droite puis haut → bas :

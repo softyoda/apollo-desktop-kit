@@ -26,7 +26,7 @@ try {
     for ($i=0; $i -lt $p.streams.Count; $i++) {
         $s=$p.streams[$i]; $screen=$targets[$i]
         # SDL sees a windowed session, so it does not lock the pointer on startup.
-        $launchArgs = 'stream "{0}" "{1}" --resolution {2}x{3} --fps {4} --display-mode windowed --absolute-mouse' -f $s.host,$s.app,$s.width,$s.height,$s.fps
+        $launchArgs = 'stream "{0}" "{1}" --resolution {2}x{3} --fps {4} --display-mode windowed --absolute-mouse --capture-system-keys always' -f $s.host,$s.app,$s.width,$s.height,$s.fps
         $proc=Start-Process -FilePath $p.moonlight -ArgumentList $launchArgs -PassThru
         $deadline=(Get-Date).AddSeconds(75); $handle=[IntPtr]::Zero
         while ((Get-Date) -lt $deadline) {
