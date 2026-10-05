@@ -11,6 +11,8 @@
 
 ## Tests automatisés du dépôt
 
+La version Microsoft Store CrossPaste 2.2.0.0 a été installée et inspectée sur l'hôte : son exécutable GUI est présent mais `app/bin/crosspaste-cli.exe` est absent. La détection a été corrigée et vérifiée sur ce vrai paquet. `Test-StoreDetection.ps1` reproduit cette disposition et vérifie aussi le paquet avec CLI et le rejet d'un paquet non signé par le Store. La synchronisation sur le portable reste à valider.
+
 `tests/Test-Kit.ps1` parse les scripts, compile les interfaces Win32/NVAPI, vérifie la structure des profils et les erreurs de validation, ainsi que les positions calculées avec des résolutions différentes. Les tests Python vérifient le parseur XRandR. Ces tests ne lancent pas de flux et ne modifient pas les écrans.
 
 ## Non revendiqué comme testé de bout en bout

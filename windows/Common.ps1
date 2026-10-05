@@ -29,7 +29,12 @@ function Get-StoreCrossPaste {
     foreach($package in ($packages | Sort-Object Version -Descending)){
         $cli=Join-Path $package.InstallLocation 'app\bin\crosspaste-cli.exe'
         $exe=Join-Path $package.InstallLocation 'bin\CrossPaste.exe'
-        if((Test-Path -LiteralPath $cli) -and (Test-Path -LiteralPath $exe)){return [pscustomobject]@{cli=$cli;exe=$exe;source='store'}}
+        # The real Store 2.2.0 package ships the GUI but omits the optional CLI.
+        # A missing CLI is not a missing installation.
+        if(Test-Path -LiteralPath $exe){
+            if(!(Test-Path -LiteralPath $cli)){$cli=$null}
+            return [pscustomobject]@{cli=$cli;exe=$exe;source='store'}
+        }
     }
     return $null
 }
@@ -67,6 +72,10 @@ function Install-CrossPasteStore {
 function Install-CrossPaste([string]$InstallRoot) {
     $installation=Get-CrossPasteInstallation $InstallRoot
     if($installation){
+        if(!$installation.cli -and $installation.source -eq 'store'){
+            if(!(Get-Process CrossPaste -ErrorAction SilentlyContinue)){Start-Process -FilePath $installation.exe -WindowStyle Hidden | Out-Null}
+            return $installation
+        }
         $status=Test-CrossPasteStatus $installation.cli
         if(!$status.launched){
             if($installation.source -eq 'store'){throw ('La version Store de CrossPaste est aussi bloquee. La politique Windows reste inchangee. '+$status.error)}
@@ -76,6 +85,10 @@ function Install-CrossPaste([string]$InstallRoot) {
     }
     if(!$installation){$installation=Install-CrossPasteStore}
     $cli=$installation.cli
+    if(!$cli -and $installation.source -eq 'store'){
+        if(!(Get-Process CrossPaste -ErrorAction SilentlyContinue)){Start-Process -FilePath $installation.exe -WindowStyle Hidden | Out-Null}
+        return $installation
+    }
     $status=Test-CrossPasteStatus $cli
     if(!$status.launched){throw ('Windows refuse CrossPaste. Aucun reglage de securite ne sera desactive. '+$status.error)}
     if(!$status.running){Start-Process -FilePath $installation.exe -WindowStyle Hidden | Out-Null}
@@ -91,7 +104,7 @@ function Install-CrossPaste([string]$InstallRoot) {
         & $cli config set $setting[0] $setting[1]
         if ($LASTEXITCODE -ne 0) { throw "CrossPaste setting failed: $($setting[0])" }
     }
-    return $cli
+    return $installation
 }
 function Read-Profile([string]$Path) {
     $profile = Get-Content -LiteralPath $Path -Raw | ConvertFrom-Json

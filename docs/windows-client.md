@@ -4,7 +4,7 @@
 
 Le parcours recommandé est maintenant **un seul fichier `Apollo-Setup.cmd`**, disponible dans les Releases du dépôt. Double-cliquer : le kit s'extrait dans `%LOCALAPPDATA%\ApolloDesktopKit`, installe les applications puis accompagne l'association CrossPaste. Au quotidien, utiliser le raccourci **Apollo - Mes ecrans** ou relancer le même fichier. Un profil personnalisé intégré permet d'éviter toute saisie de résolution ou de nom d'hôte.
 
-Le code CrossPaste reste demandé une seule fois. Le script vérifie qu'un appareil est associé avec envoi et réception autorisés ; il ne présente pas une simple installation comme une synchronisation déjà fonctionnelle. La connexion de bout en bout doit être validée sur les deux PC.
+Le code CrossPaste reste demandé une seule fois. Avec une version incluant sa CLI, le script vérifie qu'un appareil est associé avec envoi et réception autorisés. Avec le paquet Store sans CLI, il ouvre l'interface pour cette étape et ne prétend pas avoir vérifié l'association. La connexion de bout en bout doit être validée sur les deux PC.
 
 Depuis la version 0.2.1, CrossPaste est installé via son Microsoft Store officiel (`9P6X7D7DMCCR`). Une installation portable déjà fonctionnelle peut être conservée, mais un exécutable refusé par le contrôle d'application Windows n'est pas relancé en boucle : le kit propose la distribution Store. Si celle-ci reste bloquée ou nécessite une action dans le Store, les écrans peuvent quand même se lancer avec un message explicite indiquant que le presse-papiers reste indisponible. Relancer le même fichier après avoir terminé l'installation Store.
 
@@ -14,7 +14,7 @@ Le kit ne désactive ni Smart App Control, ni AppLocker, ni WDAC ; il n'importe 
 
 Extraire le kit dans un dossier permanent, puis lancer `Install-client.cmd`. L'installation utilise `%LOCALAPPDATA%\ApolloDesktopKit`. Une installation Moonlight standard existante est réutilisée, pour conserver ses associations ; sinon le kit télécharge la version portable vérifiée.
 
-CrossPaste est lancé et configuré pour démarrer avec Windows, chiffrer les échanges et conserver les formats enrichis. Il faut associer les deux PC une première fois. Le script ouvre l'assistant d'association en terminal ; le code doit être lu sur l'hôte. Ce code n'est pas intégré au kit.
+CrossPaste est lancé. Si sa CLI est disponible, les préférences sont configurées et l'association se fait dans le terminal. Avec la distribution Store 2.2.0.0 sans CLI, ouvrir **Appareils / Devices**, ajouter l'hôte puis saisir le code qui s'y affiche ; activer ensuite le chiffrement dans les réglages. Ce code n'est jamais intégré au kit.
 
 Le raccourci **Apollo - My screens** est ajouté au bureau. Le profil par défaut se trouve dans `%LOCALAPPDATA%\ApolloDesktopKit\profile.local.json`. Ne pas lancer Moonlight en administrateur : le lanceur du même utilisateur doit pouvoir déplacer ses fenêtres.
 

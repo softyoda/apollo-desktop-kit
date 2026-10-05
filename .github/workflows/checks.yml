@@ -13,6 +13,9 @@ jobs:
       - name: Validate clipboard policy handling without real installation
         shell: powershell
         run: .\tests\Test-ClipboardPolicy.ps1
+      - name: Detect Store package with and without its optional CLI
+        shell: powershell
+        run: .\tests\Test-StoreDetection.ps1
   linux:
     runs-on: ubuntu-latest
     steps:

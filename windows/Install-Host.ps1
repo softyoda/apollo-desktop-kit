@@ -12,6 +12,7 @@ if (!$ClipboardOnly) {
         Start-Process -FilePath $setup -Wait
     }
 }
-$cli = @(Install-CrossPaste "$env:LOCALAPPDATA\ApolloDesktopKit")[-1]
-& $cli status
+$clipboardInstallation = @(Install-CrossPaste "$env:LOCALAPPDATA\ApolloDesktopKit")[-1]
+if($clipboardInstallation.cli){& $clipboardInstallation.cli status}
+else{Write-Host 'CrossPaste Store installe. Associez le client dans son interface graphique.'}
 Write-Host 'Configure one Fleet instance per client display; then follow docs/windows-host.md.'

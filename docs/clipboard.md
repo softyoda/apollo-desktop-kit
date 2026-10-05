@@ -4,7 +4,7 @@ Installer **une instance CrossPaste par PC**, pas une par flux Moonlight. Screen
 
 Sur Windows, le kit privilégie maintenant [la version Microsoft Store officielle](https://apps.microsoft.com/detail/9P6X7D7DMCCR). Le Store et la politique locale décident si l'application est autorisée. Un message « stratégie de contrôle d'application » ne se résout pas avec un simple lancement administrateur : terminer l'installation Store ou obtenir l'autorisation de l'administrateur si nécessaire. Si CrossPaste reste bloqué, le lanceur ne prétend pas que le presse-papiers fonctionne et garde la possibilité de lancer les écrans.
 
-Les installateurs du kit activent le démarrage automatique, le chiffrement et la conservation de plusieurs formats. Le client Windows active explicitement texte, HTML, RTF, images et fichiers. L'écoute du presse-papiers est active par défaut ; son état est visible dans CrossPaste.
+Quand l'installation inclut la CLI CrossPaste, le kit configure automatiquement le démarrage, le chiffrement et la conservation de plusieurs formats. **Le paquet Microsoft Store 2.2.0.0 inspecté ne contient pas cette CLI** : il est reconnu comme installé et lancé normalement, mais l'association et les préférences se règlent une fois dans son interface. Activer le chiffrement, conserver le démarrage automatique et désactiver « Paste only main type » pour conserver plusieurs formats. L'écoute du presse-papiers est active par défaut ; son état est visible dans CrossPaste.
 
 ## Associer une fois
 

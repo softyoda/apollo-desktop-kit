@@ -9,9 +9,11 @@ if (!(Test-Path -LiteralPath $moonlight)) {
     else { Expand-Archive -LiteralPath (Get-VerifiedAsset 'moonlightWindows') -DestinationPath (Join-Path $InstallRoot 'Moonlight') -Force }
 }
 $cli=$null
+$clipboardInstallation=$null
 $clipboardError=Join-Path $InstallRoot 'clipboard-setup-error.txt'
 try {
-    $cli = @(Install-CrossPaste $InstallRoot)[-1]
+    $clipboardInstallation = @(Install-CrossPaste $InstallRoot)[-1]
+    $cli=$clipboardInstallation.cli
     if(Test-Path -LiteralPath $clipboardError){Remove-Item -LiteralPath $clipboardError}
 } catch {
     $_.Exception.Message | Set-Content -LiteralPath $clipboardError -Encoding UTF8
@@ -24,9 +26,9 @@ if (!(Test-Path -LiteralPath $ProfilePath)) {
 $profile = Read-Profile $ProfilePath
 $profile | Add-Member -NotePropertyName moonlight -NotePropertyValue $moonlight -Force
 $crosspastePath=''
-if($cli){$crosspastePath=(Get-CrossPasteInstallation $InstallRoot).exe}
+if($clipboardInstallation){$crosspastePath=$clipboardInstallation.exe}
 $profile | Add-Member -NotePropertyName crosspaste -NotePropertyValue $crosspastePath -Force
-$profile | Add-Member -NotePropertyName clipboard -NotePropertyValue ([bool]$cli) -Force
+$profile | Add-Member -NotePropertyName clipboard -NotePropertyValue ([bool]$clipboardInstallation) -Force
 $profile | ConvertTo-Json -Depth 20 | Set-Content -LiteralPath $ProfilePath -Encoding UTF8
 # Copy only runnable kit files; do not install downloads, credentials, logs or source checkouts.
 $kit = Join-Path $InstallRoot 'kit'
@@ -40,7 +42,7 @@ if (!$NoShortcut) {
     $link.WorkingDirectory = $InstallRoot
     $link.Save()
 }
-if (!$SkipFirewall -and $cli) {
+if (!$SkipFirewall -and $clipboardInstallation) {
     Write-Host 'Windows may request administrator approval for the LAN-only CrossPaste firewall rules.'
     $firewallArgs='-NoProfile -ExecutionPolicy Bypass -File "' + (Join-Path $kit 'windows\Allow-ClipboardNetwork.ps1') + '" -CrossPasteExe "' + $crosspastePath + '"'
     try {
@@ -52,3 +54,4 @@ Write-Host "Installed. Profile: $ProfilePath"
 Write-Host 'Pair the Moonlight hosts once if needed. Pair CrossPaste once with the host; subsequent clipboard sync is automatic.'
 if ($PairClipboard -and $cli) { & $cli pair }
 if ($cli) { & $cli status }
+elseif($clipboardInstallation){Write-Host 'CrossPaste Store est installe. Association et preferences dans son interface graphique.'}

@@ -3,7 +3,7 @@ $ErrorActionPreference='Stop'
 $kitSource=Split-Path $PSScriptRoot -Parent
 $profilePath=Join-Path $InstallRoot 'profile.local.json'
 $stamp=Join-Path $InstallRoot 'setup-version.txt'
-$version='0.2.1'
+$version='0.2.2'
 try {
     New-Item -ItemType Directory -Path $InstallRoot -Force | Out-Null
     $settingsPath=Join-Path $InstallRoot 'setup-options.json'
@@ -36,6 +36,7 @@ try {
     . "$PSScriptRoot\Common.ps1"
     $streamsStarted=$false
     $clipboardFailure=''
+    $clipboardGui=$false
     try {
     $currentProfile=Get-Content -LiteralPath $profilePath -Raw|ConvertFrom-Json
     if(!$currentProfile.clipboard){
@@ -43,7 +44,11 @@ try {
         if(Test-Path -LiteralPath $errorPath){throw (Get-Content -LiteralPath $errorPath -Raw)}
         throw 'CrossPaste reste a installer depuis le Microsoft Store.'
     }
-    $cli=Get-CrossPasteCli $InstallRoot
+    $clipboardInstallation=Get-CrossPasteInstallation $InstallRoot
+    $cli=$clipboardInstallation.cli
+    if(!$cli -and $clipboardInstallation.source -eq 'store'){
+        $clipboardGui=$true
+    } else {
     if(!$cli){throw 'CrossPaste manque. Relancer avec -ResetSetup.'}
     $status=Test-CrossPasteStatus $cli
     if(!$status.launched){throw $status.error}
@@ -78,6 +83,7 @@ try {
         if($options.clipboardTarget){$devices=@($devices|Where-Object appInstanceId -eq $options.clipboardTarget)}
         if(!@($devices|Where-Object { $_.allowSend -and $_.allowReceive -and $_.connectState -ne 4 }).Count){throw 'Autoriser envoi et reception dans CrossPaste puis relancer.'}
     }
+    }
     } catch {
         $clipboardFailure=$_.Exception.Message
         # Do not repeatedly launch a blocked binary from the normal screen launcher.
@@ -93,8 +99,21 @@ try {
     $link.Arguments='-NoProfile -ExecutionPolicy Bypass -File "'+$entry+'"'
     $link.WorkingDirectory=$InstallRoot
     $link.Save()
-    if(!$clipboardFailure){Write-Host 'Presse-papiers associe. Le raccourci Apollo - Mes ecrans est pret.'}
+    if(!$clipboardFailure -and !$clipboardGui){Write-Host 'Presse-papiers associe. Le raccourci Apollo - Mes ecrans est pret.'}
     if(!$streamsStarted){& (Join-Path $InstallRoot 'kit\windows\Start-Desktop.ps1') -ProfilePath $profilePath}
+    if($clipboardGui){
+        $intro=Join-Path $InstallRoot 'clipboard-gui-intro-shown.txt'
+        if(!(Test-Path -LiteralPath $intro)){
+            # This is an interactive one-time pairing window, intentionally visible.
+            Start-Process -FilePath $clipboardInstallation.exe
+            Write-Host 'CrossPaste est installe et ouvert. Une seule fois :' -ForegroundColor Cyan
+            Write-Host '1. Dans Appareils / Devices, ajoute le PC hote et saisis le code affiche sur son ecran.'
+            Write-Host '2. Dans Parametres, active la synchronisation chiffree et desactive Paste only main type pour conserver les formats enrichis.'
+            Write-Host 'Le kit ne peut pas verifier automatiquement cette association car cette version Store ne contient pas la CLI.'
+            Read-Host 'Appuie sur Entree pour fermer cet assistant. Le raccourci Apollo - Mes ecrans servira ensuite chaque jour'
+            'Instructions shown; pairing is not programmatically verified.'|Set-Content -LiteralPath $intro
+        } else {Write-Host 'CrossPaste est lance. L association se gere dans son interface.'}
+    }
     if($clipboardFailure){
         Write-Host ('Les ecrans sont lances, mais le presse-papiers n est PAS synchronise : '+$clipboardFailure) -ForegroundColor Yellow
         Read-Host 'Apres installation/autorisation de CrossPaste dans le Store, relance ce meme fichier. Entree pour fermer'

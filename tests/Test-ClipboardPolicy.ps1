@@ -13,7 +13,11 @@ try {
     function Get-CrossPasteInstallation([string]$InstallRoot){return [pscustomobject]@{source='portable';cli=$blocked;exe='blocked.exe'}}
     function Install-CrossPasteStore {$script:storeCalls++;return [pscustomobject]@{source='store';cli=$storeCli;exe='store.exe'}}
     $result=@(Install-CrossPaste $testRoot)[-1]
-    if($result -ne $storeCli -or $script:storeCalls -ne 1){throw 'A rejected portable install must select the official Store distribution.'}
+    if($result.cli -ne $storeCli -or $script:storeCalls -ne 1){throw 'A rejected portable install must select the official Store distribution.'}
+    function Get-CrossPasteInstallation([string]$InstallRoot){return [pscustomobject]@{source='store';cli=$null;exe='store-gui.exe'}}
+    function Get-Process {return [pscustomobject]@{ProcessName='CrossPaste'}}
+    $gui=@(Install-CrossPaste $testRoot)[-1]
+    if($gui.cli -or $gui.exe -ne 'store-gui.exe' -or $script:storeCalls -ne 1){throw 'GUI-only Store install must not be reinstalled or sent to missing CLI.'}
     function Get-CrossPasteInstallation([string]$InstallRoot){return [pscustomobject]@{source='store';cli=$blocked;exe='blocked.exe'}}
     $rejected=$false
     try {Install-CrossPaste $testRoot|Out-Null}catch{$rejected=$true}
