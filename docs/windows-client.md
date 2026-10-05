@@ -6,6 +6,10 @@ Le parcours recommandé est maintenant **un seul fichier `Apollo-Setup.cmd`**, d
 
 Le code CrossPaste reste demandé une seule fois. Le script vérifie qu'un appareil est associé avec envoi et réception autorisés ; il ne présente pas une simple installation comme une synchronisation déjà fonctionnelle. La connexion de bout en bout doit être validée sur les deux PC.
 
+Depuis la version 0.2.1, CrossPaste est installé via son Microsoft Store officiel (`9P6X7D7DMCCR`). Une installation portable déjà fonctionnelle peut être conservée, mais un exécutable refusé par le contrôle d'application Windows n'est pas relancé en boucle : le kit propose la distribution Store. Si celle-ci reste bloquée ou nécessite une action dans le Store, les écrans peuvent quand même se lancer avec un message explicite indiquant que le presse-papiers reste indisponible. Relancer le même fichier après avoir terminé l'installation Store.
+
+Le kit ne désactive ni Smart App Control, ni AppLocker, ni WDAC ; il n'importe aucun certificat de confiance pour faire accepter un exécutable. Sur un PC géré, une autorisation de l'administrateur peut être nécessaire.
+
 ### Parcours ZIP, pour configuration avancée
 
 Extraire le kit dans un dossier permanent, puis lancer `Install-client.cmd`. L'installation utilise `%LOCALAPPDATA%\ApolloDesktopKit`. Une installation Moonlight standard existante est réutilisée, pour conserver ses associations ; sinon le kit télécharge la version portable vérifiée.

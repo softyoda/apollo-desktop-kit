@@ -18,23 +18,72 @@ function Get-VerifiedAsset([string]$Package) {
     if ((Get-FileHash $path -Algorithm SHA256).Hash -ne $asset.sha256) { throw "SHA256 mismatch: $Package" }
     return $path
 }
+function Get-StoreCrossPaste {
+    # Only use a registered Store-signed package. Never trust/import the ZIP's certificate.
+    if (!(Get-Command Get-AppxPackage -ErrorAction SilentlyContinue)) { return $null }
+    $packages=@(Get-AppxPackage -ErrorAction SilentlyContinue | Where-Object { $_.SignatureKind -eq 'Store' -and $_.Name -match 'CrossPaste' })
+    if (!$packages.Count -and (Get-Command Get-StartApps -ErrorAction SilentlyContinue)) {
+        $app=Get-StartApps | Where-Object Name -eq 'CrossPaste' | Select-Object -First 1
+        if($app){$family=($app.AppID -split '!')[0];$packages=@(Get-AppxPackage | Where-Object { $_.SignatureKind -eq 'Store' -and $_.PackageFamilyName -eq $family })}
+    }
+    foreach($package in ($packages | Sort-Object Version -Descending)){
+        $cli=Join-Path $package.InstallLocation 'app\bin\crosspaste-cli.exe'
+        $exe=Join-Path $package.InstallLocation 'bin\CrossPaste.exe'
+        if((Test-Path -LiteralPath $cli) -and (Test-Path -LiteralPath $exe)){return [pscustomobject]@{cli=$cli;exe=$exe;source='store'}}
+    }
+    return $null
+}
+function Get-CrossPasteInstallation([string]$InstallRoot) {
+    $store=Get-StoreCrossPaste
+    if($store){return $store}
+    $cli=Join-Path $InstallRoot 'CrossPaste\app\bin\crosspaste-cli.exe'
+    $exe=Join-Path $InstallRoot 'CrossPaste\bin\CrossPaste.exe'
+    if((Test-Path -LiteralPath $cli) -and (Test-Path -LiteralPath $exe)){return [pscustomobject]@{cli=$cli;exe=$exe;source='portable'}}
+    return $null
+}
 function Get-CrossPasteCli([string]$InstallRoot) {
-    $candidates = @((Join-Path $InstallRoot 'CrossPaste\app\bin\crosspaste-cli.exe'))
-    return $candidates | Where-Object { Test-Path -LiteralPath $_ } | Select-Object -First 1
+    $installation=Get-CrossPasteInstallation $InstallRoot
+    if($installation){return $installation.cli}
+    return $null
+}
+function Test-CrossPasteStatus([string]$Cli) {
+    # Launch failures (including application-control policy) must not abort the whole installer.
+    try { & $Cli status *> $null; return [pscustomobject]@{launched=$true;running=($LASTEXITCODE -eq 0);error=''} }
+    catch { return [pscustomobject]@{launched=$false;running=$false;error=$_.Exception.Message} }
+}
+function Install-CrossPasteStore {
+    $store=Get-StoreCrossPaste
+    if($store){return $store}
+    if(Get-Command winget.exe -ErrorAction SilentlyContinue){
+        try { & winget.exe install --id 9P6X7D7DMCCR --source msstore --exact --accept-package-agreements --accept-source-agreements --disable-interactivity | Out-Host }
+        catch { Write-Warning 'L installation Store automatique est indisponible. Ouverture de sa page officielle.' }
+        $store=Get-StoreCrossPaste
+        if($store){return $store}
+    }
+    # Let Windows/the Store enforce the policy. Do not sideload, unblock, or change security settings.
+    Start-Process 'ms-windows-store://pdp/?ProductId=9P6X7D7DMCCR'
+    throw 'Installe CrossPaste depuis la page Microsoft Store ouverte, puis relance ce meme fichier. Si le Store refuse aussi, utilise le support Windows ou l administrateur du PC.'
 }
 function Install-CrossPaste([string]$InstallRoot) {
-    $exe = Join-Path $InstallRoot 'CrossPaste\bin\CrossPaste.exe'
-    if (!(Test-Path -LiteralPath $exe)) {
-        $zip = Get-VerifiedAsset 'crosspasteWindows'
-        Expand-Archive -LiteralPath $zip -DestinationPath (Join-Path $InstallRoot 'CrossPaste') -Force
+    $installation=Get-CrossPasteInstallation $InstallRoot
+    if($installation){
+        $status=Test-CrossPasteStatus $installation.cli
+        if(!$status.launched){
+            if($installation.source -eq 'store'){throw ('La version Store de CrossPaste est aussi bloquee. La politique Windows reste inchangee. '+$status.error)}
+            Write-Host 'Le programme portable ne peut pas demarrer. Installation de la distribution officielle Microsoft Store.'
+            $installation=$null
+        }
     }
-    $cli = Get-CrossPasteCli $InstallRoot
-    & $cli status *> $null
-    if ($LASTEXITCODE -ne 0) { Start-Process -FilePath $exe -WindowStyle Hidden | Out-Null }
+    if(!$installation){$installation=Install-CrossPasteStore}
+    $cli=$installation.cli
+    $status=Test-CrossPasteStatus $cli
+    if(!$status.launched){throw ('Windows refuse CrossPaste. Aucun reglage de securite ne sera desactive. '+$status.error)}
+    if(!$status.running){Start-Process -FilePath $installation.exe -WindowStyle Hidden | Out-Null}
     $ready = $false
     for ($i=0; $i -lt 40; $i++) {
-        & $cli status *> $null
-        if ($LASTEXITCODE -eq 0) { $ready=$true; break }
+        $status=Test-CrossPasteStatus $cli
+        if(!$status.launched){throw $status.error}
+        if ($status.running) { $ready=$true; break }
         Start-Sleep -Milliseconds 500
     }
     if (!$ready) { throw 'CrossPaste did not start. Open its window to inspect the error.' }

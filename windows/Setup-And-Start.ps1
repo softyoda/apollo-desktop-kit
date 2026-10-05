@@ -3,7 +3,7 @@ $ErrorActionPreference='Stop'
 $kitSource=Split-Path $PSScriptRoot -Parent
 $profilePath=Join-Path $InstallRoot 'profile.local.json'
 $stamp=Join-Path $InstallRoot 'setup-version.txt'
-$version='0.2.0'
+$version='0.2.1'
 try {
     New-Item -ItemType Directory -Path $InstallRoot -Force | Out-Null
     $settingsPath=Join-Path $InstallRoot 'setup-options.json'
@@ -31,18 +31,29 @@ try {
         $setupLog=Join-Path $InstallRoot 'installation.log'
         & "$PSScriptRoot\Install-Client.ps1" -InstallRoot $InstallRoot -ProfilePath $profilePath -NoShortcut *> $setupLog
         if(!$?){throw "Installation incomplete. Voir $setupLog"}
-        Set-Content -LiteralPath $stamp -Value $version
+        if(!(Test-Path (Join-Path $InstallRoot 'clipboard-setup-error.txt'))){Set-Content -LiteralPath $stamp -Value $version}
     }
     . "$PSScriptRoot\Common.ps1"
+    $streamsStarted=$false
+    $clipboardFailure=''
+    try {
+    $currentProfile=Get-Content -LiteralPath $profilePath -Raw|ConvertFrom-Json
+    if(!$currentProfile.clipboard){
+        $errorPath=Join-Path $InstallRoot 'clipboard-setup-error.txt'
+        if(Test-Path -LiteralPath $errorPath){throw (Get-Content -LiteralPath $errorPath -Raw)}
+        throw 'CrossPaste reste a installer depuis le Microsoft Store.'
+    }
     $cli=Get-CrossPasteCli $InstallRoot
     if(!$cli){throw 'CrossPaste manque. Relancer avec -ResetSetup.'}
-    & $cli status *> $null
-    if($LASTEXITCODE -ne 0){
-        Start-Process -FilePath (Join-Path $InstallRoot 'CrossPaste\bin\CrossPaste.exe') -WindowStyle Hidden
+    $status=Test-CrossPasteStatus $cli
+    if(!$status.launched){throw $status.error}
+    if(!$status.running){
+        Start-Process -FilePath (Get-CrossPasteInstallation $InstallRoot).exe -WindowStyle Hidden
         for($i=0;$i -lt 40;$i++){
             Start-Sleep -Milliseconds 500
-            & $cli status *> $null
-            if($LASTEXITCODE -eq 0){break}
+            $status=Test-CrossPasteStatus $cli
+            if(!$status.launched){throw $status.error}
+            if($status.running){break}
         }
     }
     $raw=& $cli --json devices
@@ -50,7 +61,6 @@ try {
     $devices=@($raw|ConvertFrom-Json)
     if($options.clipboardTarget){$devices=@($devices|Where-Object appInstanceId -eq $options.clipboardTarget)}
     $paired=@($devices|Where-Object { $_.allowSend -and $_.allowReceive -and $_.connectState -ne 4 })
-    $streamsStarted=$false
     if(!$paired.Count){
         # Open the host desktop first so its pairing popup can be read without TeamViewer.
         Write-Host 'Ouverture des ecrans pour afficher le code du PC hote...'
@@ -68,6 +78,14 @@ try {
         if($options.clipboardTarget){$devices=@($devices|Where-Object appInstanceId -eq $options.clipboardTarget)}
         if(!@($devices|Where-Object { $_.allowSend -and $_.allowReceive -and $_.connectState -ne 4 }).Count){throw 'Autoriser envoi et reception dans CrossPaste puis relancer.'}
     }
+    } catch {
+        $clipboardFailure=$_.Exception.Message
+        # Do not repeatedly launch a blocked binary from the normal screen launcher.
+        $currentProfile=Get-Content -LiteralPath $profilePath -Raw|ConvertFrom-Json
+        $currentProfile.clipboard=$false
+        $currentProfile|ConvertTo-Json -Depth 20|Set-Content -LiteralPath $profilePath -Encoding UTF8
+        if(Test-Path -LiteralPath $stamp){Remove-Item -LiteralPath $stamp}
+    }
     # The desktop entry reuses this exact setup/launch flow, including pairing retries.
     $entry=Join-Path $InstallRoot 'kit\windows\Setup-And-Start.ps1'
     $link=(New-Object -ComObject WScript.Shell).CreateShortcut((Join-Path ([Environment]::GetFolderPath('Desktop')) 'Apollo - Mes ecrans.lnk'))
@@ -75,8 +93,12 @@ try {
     $link.Arguments='-NoProfile -ExecutionPolicy Bypass -File "'+$entry+'"'
     $link.WorkingDirectory=$InstallRoot
     $link.Save()
-    Write-Host 'Presse-papiers associe. Le raccourci Apollo - Mes ecrans est pret.'
+    if(!$clipboardFailure){Write-Host 'Presse-papiers associe. Le raccourci Apollo - Mes ecrans est pret.'}
     if(!$streamsStarted){& (Join-Path $InstallRoot 'kit\windows\Start-Desktop.ps1') -ProfilePath $profilePath}
+    if($clipboardFailure){
+        Write-Host ('Les ecrans sont lances, mais le presse-papiers n est PAS synchronise : '+$clipboardFailure) -ForegroundColor Yellow
+        Read-Host 'Apres installation/autorisation de CrossPaste dans le Store, relance ce meme fichier. Entree pour fermer'
+    }
 } catch {
     Write-Host $_.Exception.Message -ForegroundColor Red
     Read-Host 'Appuie sur Entree pour fermer. Tu peux relancer le meme fichier pour reprendre'

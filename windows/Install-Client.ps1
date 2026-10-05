@@ -8,14 +8,25 @@ if (!(Test-Path -LiteralPath $moonlight)) {
     if (Test-Path -LiteralPath $existing) { $moonlight = $existing }
     else { Expand-Archive -LiteralPath (Get-VerifiedAsset 'moonlightWindows') -DestinationPath (Join-Path $InstallRoot 'Moonlight') -Force }
 }
-$cli = @(Install-CrossPaste $InstallRoot)[-1]
+$cli=$null
+$clipboardError=Join-Path $InstallRoot 'clipboard-setup-error.txt'
+try {
+    $cli = @(Install-CrossPaste $InstallRoot)[-1]
+    if(Test-Path -LiteralPath $clipboardError){Remove-Item -LiteralPath $clipboardError}
+} catch {
+    $_.Exception.Message | Set-Content -LiteralPath $clipboardError -Encoding UTF8
+    Write-Warning ('Les ecrans restent disponibles. Presse-papiers non configure : '+$_.Exception.Message)
+}
 if (!$ProfilePath) { $ProfilePath = Join-Path $InstallRoot 'profile.local.json' }
 if (!(Test-Path -LiteralPath $ProfilePath)) {
     & "$PSScriptRoot\New-ClientProfile.ps1" -OutFile $ProfilePath
 }
 $profile = Read-Profile $ProfilePath
 $profile | Add-Member -NotePropertyName moonlight -NotePropertyValue $moonlight -Force
-$profile | Add-Member -NotePropertyName crosspaste -NotePropertyValue (Join-Path $InstallRoot 'CrossPaste\bin\CrossPaste.exe') -Force
+$crosspastePath=''
+if($cli){$crosspastePath=(Get-CrossPasteInstallation $InstallRoot).exe}
+$profile | Add-Member -NotePropertyName crosspaste -NotePropertyValue $crosspastePath -Force
+$profile | Add-Member -NotePropertyName clipboard -NotePropertyValue ([bool]$cli) -Force
 $profile | ConvertTo-Json -Depth 20 | Set-Content -LiteralPath $ProfilePath -Encoding UTF8
 # Copy only runnable kit files; do not install downloads, credentials, logs or source checkouts.
 $kit = Join-Path $InstallRoot 'kit'
@@ -29,9 +40,9 @@ if (!$NoShortcut) {
     $link.WorkingDirectory = $InstallRoot
     $link.Save()
 }
-if (!$SkipFirewall) {
+if (!$SkipFirewall -and $cli) {
     Write-Host 'Windows may request administrator approval for the LAN-only CrossPaste firewall rules.'
-    $firewallArgs='-NoProfile -ExecutionPolicy Bypass -File "' + (Join-Path $kit 'windows\Allow-ClipboardNetwork.ps1') + '" -CrossPasteExe "' + (Join-Path $InstallRoot 'CrossPaste\bin\CrossPaste.exe') + '"'
+    $firewallArgs='-NoProfile -ExecutionPolicy Bypass -File "' + (Join-Path $kit 'windows\Allow-ClipboardNetwork.ps1') + '" -CrossPasteExe "' + $crosspastePath + '"'
     try {
         $ruleProcess=Start-Process powershell.exe -Verb RunAs -WindowStyle Hidden -ArgumentList $firewallArgs -Wait -PassThru
         if ($ruleProcess.ExitCode -ne 0) { Write-Warning 'Firewall setup failed; see docs/clipboard.md.' }
@@ -39,5 +50,5 @@ if (!$SkipFirewall) {
 }
 Write-Host "Installed. Profile: $ProfilePath"
 Write-Host 'Pair the Moonlight hosts once if needed. Pair CrossPaste once with the host; subsequent clipboard sync is automatic.'
-if ($PairClipboard) { & $cli pair }
-& $cli status
+if ($PairClipboard -and $cli) { & $cli pair }
+if ($cli) { & $cli status }

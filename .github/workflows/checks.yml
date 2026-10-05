@@ -10,6 +10,9 @@ jobs:
       - name: Validate PowerShell and native helpers
         shell: powershell
         run: .\tests\Test-Kit.ps1
+      - name: Validate clipboard policy handling without real installation
+        shell: powershell
+        run: .\tests\Test-ClipboardPolicy.ps1
   linux:
     runs-on: ubuntu-latest
     steps:

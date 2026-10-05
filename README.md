@@ -2,7 +2,7 @@
 
 Retrouver son poste de travail sur plusieurs écrans, depuis un portable Windows ou Linux : un flux Moonlight par écran, des résolutions indépendantes, un presse-papiers partagé et un lancement unique.
 
-Ce dépôt documente un montage de bureau concret et fournit les scripts pour le reproduire. Il ne remplace pas Apollo, Apollo Fleet Launcher, Moonlight ou CrossPaste. Les versions téléchargées sont figées et leurs SHA-256 vérifiés dans [`packages.json`](packages.json).
+Ce dépôt documente un montage de bureau concret et fournit les scripts pour le reproduire. Il ne remplace pas Apollo, Apollo Fleet Launcher, Moonlight ou CrossPaste. Les archives téléchargées directement sont figées et leurs SHA-256 vérifiés dans [`packages.json`](packages.json). Pour une nouvelle installation CrossPaste sous Windows, le kit utilise le Microsoft Store officiel : sa version et ses mises à jour sont gérées par le Store.
 
 ## Le montage de référence
 
