@@ -1,0 +1,32 @@
+﻿{
+    "crosspasteWindows":  {
+                              "version":  "2.2.0.2544",
+                              "file":  "crosspaste-2.2.0-2544-windows-amd64.zip",
+                              "url":  "https://github.com/CrossPaste/crosspaste-desktop/releases/download/2.2.0.2544/crosspaste-2.2.0-2544-windows-amd64.zip",
+                              "sha256":  "2d36a427823633b83ca62a86ce63bc7922a4128809e17140ba2685f8016abca7"
+                          },
+    "crosspasteLinux":  {
+                            "version":  "2.2.0.2544",
+                            "file":  "crosspaste-2.2.0-2544-amd64.AppImage",
+                            "url":  "https://github.com/CrossPaste/crosspaste-desktop/releases/download/2.2.0.2544/crosspaste-2.2.0-2544-amd64.AppImage",
+                            "sha256":  "2adb16b74dacffc8aa84d74f2d2d8ba35720f884463f1bcaf094104f16402b24"
+                        },
+    "moonlightWindows":  {
+                             "version":  "v6.2.0",
+                             "file":  "MoonlightPortable-x64-6.2.0.zip",
+                             "url":  "https://github.com/moonlight-stream/moonlight-qt/releases/download/v6.2.0/MoonlightPortable-x64-6.2.0.zip",
+                             "sha256":  "6f91d268b41ed5ca8066d9d7578dc403b8db190991ff48f00b1700465f8f7ebf"
+                         },
+    "apolloWindows":  {
+                          "version":  "v0.4.6",
+                          "file":  "Apollo-0.4.6.exe",
+                          "url":  "https://github.com/ClassicOldSong/Apollo/releases/download/v0.4.6/Apollo-0.4.6.exe",
+                          "sha256":  "42b2aefaacb3474511517a56b96ee9f0517f30ac38b5dd2fda9fd5b478f5021a"
+                      },
+    "fleetWindows":  {
+                         "version":  "v0.5.1",
+                         "file":  "ApolloFleet-Setup-v0.5.1-win-x64.exe",
+                         "url":  "https://github.com/drajabr/Apollo-Fleet-Launcher/releases/download/v0.5.1/ApolloFleet-Setup-v0.5.1-win-x64.exe",
+                         "sha256":  "9f164912db2cd61e720d67115e57f26803928999c2163ab5346b7e373267ce04"
+                     }
+}

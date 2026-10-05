@@ -1,0 +1,20 @@
+{
+  "version": 1,
+  "clipboard": true,
+  "streams": [
+    {
+      "host": "Screen2", "app": "Desktop", "monitor": "left",
+      "mode": "windowed", "width": 1920, "height": 1008, "fps": 60,
+      "renderScale": 1.0,
+      "clientBounds": {"x": 0, "y": 0, "width": 1920, "height": 1080},
+      "clientPrimary": true
+    },
+    {
+      "host": "Screen1", "app": "Desktop", "monitor": "right",
+      "mode": "borderless", "width": 3200, "height": 1350, "fps": 60,
+      "renderScale": 1.25,
+      "clientBounds": {"x": 1920, "y": 0, "width": 2560, "height": 1080},
+      "clientPrimary": false
+    }
+  ]
+}

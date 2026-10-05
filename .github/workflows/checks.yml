@@ -1,0 +1,19 @@
+name: Validate scripts
+on: [push, pull_request]
+permissions:
+  contents: read
+jobs:
+  windows:
+    runs-on: windows-latest
+    steps:
+      - uses: actions/checkout@v4
+      - name: Validate PowerShell and native helpers
+        shell: powershell
+        run: .\tests\Test-Kit.ps1
+  linux:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - run: bash -n linux/install-client.sh
+      - run: python3 -m unittest discover -s tests -p 'test_*.py'
+      - run: python3 -m py_compile linux/start_desktop.py linux/setup_crosspaste.py

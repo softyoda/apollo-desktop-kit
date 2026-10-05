@@ -1,0 +1,11 @@
+local/
+downloads/
+runtime/
+*.log
+*.zip
+*.pem
+*.pfx
+previous-mode.json
+profile.local.json
+host-layout.local.json
+__pycache__/
