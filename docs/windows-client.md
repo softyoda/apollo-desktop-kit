@@ -60,6 +60,10 @@ Pour reproduire le montage de référence, utiliser l'exemple fourni : Screen1 �
 
 ## Utilisation quotidienne
 
+Depuis la version 0.2.3, **Apollo - Mes ecrans** lance directement la connexion : il n'exécute ni installateur, ni configuration du pare-feu, ni nouvel assistant d'association. Le fichier unique détecte aussi un profil local et Moonlight déjà présents ; une mise à jour du lanceur copie seulement ses scripts. L'absence de l'hôte, une erreur CrossPaste ou un ancien marqueur de version ne déclenchent plus de réinstallation.
+
+Après un redémarrage de l'hôte, attendre qu'Apollo/Fleet soient disponibles puis relancer la connexion. Une réparation des applications reste explicite, avec `Setup-And-Start.ps1 -ResetSetup`, et n'est pas effectuée pendant le lancement quotidien.
+
 1. Connecter les moniteurs ; Windows doit être en bureau **étendu**.
 2. Hors bureau, établir le VPN avant le lancement.
 3. Double-cliquer sur **Apollo - My screens**.

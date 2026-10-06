@@ -16,6 +16,9 @@ jobs:
       - name: Detect Store package with and without its optional CLI
         shell: powershell
         run: .\tests\Test-StoreDetection.ps1
+      - name: Daily launch must not reinstall when the host is offline
+        shell: powershell
+        run: .\tests\Test-ClientLifecycle.ps1
   linux:
     runs-on: ubuntu-latest
     steps:

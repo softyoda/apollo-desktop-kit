@@ -7,7 +7,9 @@ try {
     $p = Read-Profile $ProfilePath
     if (!(Test-Path -LiteralPath $p.moonlight)) { throw 'Moonlight path missing. Run Install-Client first.' }
     if ($p.clipboard -and $p.crosspaste -and (Test-Path -LiteralPath $p.crosspaste)) {
-        if (!(Get-Process CrossPaste -ErrorAction SilentlyContinue)) { Start-Process -FilePath $p.crosspaste -WindowStyle Hidden | Out-Null }
+        try {
+            if (!(Get-Process CrossPaste -ErrorAction SilentlyContinue)) { Start-Process -FilePath $p.crosspaste -WindowStyle Hidden | Out-Null }
+        } catch { Write-Warning 'CrossPaste ne demarre pas. Connexion aux ecrans poursuivie, sans reinstallation.' }
     }
     $screens = [System.Windows.Forms.Screen]::AllScreens
     # Resolve every output before opening anything.
@@ -35,7 +37,7 @@ try {
             if ($handle -ne [IntPtr]::Zero) { break }
             Start-Sleep -Milliseconds 250
         }
-        if ($handle -eq [IntPtr]::Zero) { throw "No stream window: $($s.host). Check pairing and host availability." }
+        if ($handle -eq [IntPtr]::Zero) { throw "Pas de flux pour $($s.host). Si le PC hote redemarre, attends qu'Apollo soit pret puis relance la connexion. Aucune reinstallation n'est necessaire." }
         for ($retry=0; $retry -lt 5; $retry++) {
             Start-Sleep -Milliseconds 800
             $handle=[MoonlightWindows]::FindStream($proc.Id)

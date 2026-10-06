@@ -3,14 +3,22 @@ $ErrorActionPreference='Stop'
 $kitSource=Split-Path $PSScriptRoot -Parent
 $profilePath=Join-Path $InstallRoot 'profile.local.json'
 $stamp=Join-Path $InstallRoot 'setup-version.txt'
-$version='0.2.2'
+$version='0.2.3'
+. "$PSScriptRoot\ClientLifecycle.ps1"
 try {
     New-Item -ItemType Directory -Path $InstallRoot -Force | Out-Null
+    if (!$ResetSetup -and (Test-ClientReady $profilePath)) {
+        # A newer launcher updates its own scripts, never reinstalls dependencies or firewall rules.
+        Update-ClientKit $kitSource $InstallRoot
+        Set-DailyShortcut $InstallRoot $profilePath
+        Write-Host 'Connexion aux ecrans...'
+        & (Join-Path $InstallRoot 'kit\windows\Start-Desktop.ps1') -ProfilePath $profilePath
+        return
+    }
     $settingsPath=Join-Path $InstallRoot 'setup-options.json'
     $options=@{}
     if(Test-Path -LiteralPath $settingsPath){$options=Get-Content -LiteralPath $settingsPath -Raw|ConvertFrom-Json}
-    $needsSetup=$ResetSetup -or !(Test-Path -LiteralPath $stamp)
-    if(!$needsSetup){$needsSetup=(Get-Content -LiteralPath $stamp -Raw).Trim() -ne $version}
+    $needsSetup=$true # No usable local profile/Moonlight, or an explicit repair request.
     if($needsSetup){
         Write-Host 'Apollo - preparation automatique du portable' -ForegroundColor Cyan
         if(!(Test-Path -LiteralPath $profilePath)){
@@ -31,7 +39,7 @@ try {
         $setupLog=Join-Path $InstallRoot 'installation.log'
         & "$PSScriptRoot\Install-Client.ps1" -InstallRoot $InstallRoot -ProfilePath $profilePath -NoShortcut *> $setupLog
         if(!$?){throw "Installation incomplete. Voir $setupLog"}
-        if(!(Test-Path (Join-Path $InstallRoot 'clipboard-setup-error.txt'))){Set-Content -LiteralPath $stamp -Value $version}
+        Set-Content -LiteralPath $stamp -Value $version
     }
     . "$PSScriptRoot\Common.ps1"
     $streamsStarted=$false
@@ -90,15 +98,8 @@ try {
         $currentProfile=Get-Content -LiteralPath $profilePath -Raw|ConvertFrom-Json
         $currentProfile.clipboard=$false
         $currentProfile|ConvertTo-Json -Depth 20|Set-Content -LiteralPath $profilePath -Encoding UTF8
-        if(Test-Path -LiteralPath $stamp){Remove-Item -LiteralPath $stamp}
     }
-    # The desktop entry reuses this exact setup/launch flow, including pairing retries.
-    $entry=Join-Path $InstallRoot 'kit\windows\Setup-And-Start.ps1'
-    $link=(New-Object -ComObject WScript.Shell).CreateShortcut((Join-Path ([Environment]::GetFolderPath('Desktop')) 'Apollo - Mes ecrans.lnk'))
-    $link.TargetPath="$env:SystemRoot\System32\WindowsPowerShell\v1.0\powershell.exe"
-    $link.Arguments='-NoProfile -ExecutionPolicy Bypass -File "'+$entry+'"'
-    $link.WorkingDirectory=$InstallRoot
-    $link.Save()
+    Set-DailyShortcut $InstallRoot $profilePath
     if(!$clipboardFailure -and !$clipboardGui){Write-Host 'Presse-papiers associe. Le raccourci Apollo - Mes ecrans est pret.'}
     if(!$streamsStarted){& (Join-Path $InstallRoot 'kit\windows\Start-Desktop.ps1') -ProfilePath $profilePath}
     if($clipboardGui){
