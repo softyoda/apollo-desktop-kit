@@ -22,7 +22,7 @@ from icon_art import icon
 import settings
 import windows_usb
 
-VERSION = "0.2.0-beta.1"
+VERSION = "0.2.0-beta.2"
 
 
 def resources():

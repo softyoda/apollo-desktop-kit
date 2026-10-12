@@ -1,7 +1,7 @@
 #ifndef Role
   #define Role "client"
 #endif
-#define AppVersion "0.2.0-beta.1"
+#define AppVersion "0.2.0-beta.2"
 #if Role == "server"
   #define RoleTitle "Server"
   #define DriverFile "usbipd-win_5.3.0_x64.msi"

@@ -11,9 +11,9 @@ from protocol import valid_busid
 CREATE_NO_WINDOW = 0x08000000
 
 
-def run(argv, timeout=30):
+def run(argv, timeout=30, encoding=None):
     result = subprocess.run([str(x) for x in argv], capture_output=True, text=True,
-                            errors="replace", timeout=timeout, creationflags=CREATE_NO_WINDOW)
+                            errors="replace", encoding=encoding, timeout=timeout, creationflags=CREATE_NO_WINDOW)
     if result.returncode:
         raise RuntimeError((result.stderr or result.stdout or "Command failed").strip()[:1200])
     return result.stdout.strip()
@@ -27,23 +27,41 @@ def executable(role):
     return path
 
 
-def check_firewall():
-    # Setup creates explicit non-loopback block rules; refuse sharing if removed.
-    script = """
+FIREWALL_CHECK = """
 $ErrorActionPreference='Stop'
+[Console]::OutputEncoding = [System.Text.UTF8Encoding]::new($false)
+try {
 $profiles = @(Get-NetFirewallProfile -PolicyStore ActiveStore)
+if ($profiles.Count -ne 3) { throw 'Cannot verify all Windows Firewall profiles.' }
 if (@($profiles | Where-Object { -not $_.Enabled }).Count) { throw 'Windows Firewall must be enabled.' }
 if (@($profiles | Where-Object { $_.AllowLocalFirewallRules -eq 'False' }).Count) { throw 'Company policy disables local firewall rules. IT must provide equivalent USB protection.' }
-$rule = Get-NetFirewallRule -PolicyStore ActiveStore -Name 'SpaceMouseLink-USB-LocalOnly' -ErrorAction Stop
-if ($rule.Enabled -ne 'True' -or $rule.Direction -ne 'Inbound' -or $rule.Action -ne 'Block') { throw 'USB firewall protection is not active.' }
-$port = $rule | Get-NetFirewallPortFilter
-if ($port.Protocol -ne 'TCP' -or $port.LocalPort -ne '3240') { throw 'USB firewall protection was changed.' }
-$addresses = @($rule | Get-NetFirewallAddressFilter | Select-Object -ExpandProperty RemoteAddress)
+$policy = New-Object -ComObject HNetCfg.FwPolicy2
+if ($policy.LocalPolicyModifyState -ne 0) { throw 'Company policy prevents verifying local USB firewall protection.' }
+# COM exposes the display name, not the NetSecurity internal rule identifier.
+# Unlike Get-NetFirewallRule ActiveStore, this read does not require elevation.
+$rules = @($policy.Rules | Where-Object { $_.Name -eq 'SpaceMouse Link - block non-local USB access' })
+if ($rules.Count -ne 1) { throw 'USB firewall protection is missing or ambiguous. Run Server setup with USB prerequisite selected.' }
+$rule = $rules[0]
+if (-not $rule.Enabled -or $rule.Direction -ne 1 -or $rule.Action -ne 0) { throw 'USB firewall protection is not active.' }
+if ($rule.Protocol -ne 6 -or $rule.LocalPorts -ne '3240') { throw 'USB firewall protection was changed.' }
+if (($rule.Profiles -band 7) -ne 7 -or $rule.ApplicationName -or $rule.ServiceName -or
+    $rule.LocalAddresses -ne '*' -or $rule.RemotePorts -ne '*' -or
+    $rule.InterfaceTypes -ne 'All' -or $rule.Interfaces) { throw 'USB firewall protection has a restricted scope.' }
+$addresses = @($rule.RemoteAddresses.Split(',') | ForEach-Object { $_.Trim() })
 foreach ($required in @('0.0.0.0-126.255.255.255','128.0.0.0-255.255.255.255','::2-ffff:ffff:ffff:ffff:ffff:ffff:ffff:ffff')) {
  if ($addresses -notcontains $required) { throw 'USB firewall address protection was changed.' }
 }
+} catch {
+ [Console]::Error.WriteLine($_.Exception.Message)
+ exit 1
+}
 """
-    run(["powershell.exe", "-NoProfile", "-NonInteractive", "-Command", script])
+
+
+def check_firewall():
+    # Fail closed on missing protection or unreadable policy; never elevate the app.
+    run(["powershell.exe", "-NoProfile", "-NonInteractive", "-Command", FIREWALL_CHECK],
+        encoding="utf-8")
 
 
 def devices():

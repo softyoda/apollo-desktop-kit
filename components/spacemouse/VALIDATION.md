@@ -1,4 +1,16 @@
-# Validation de la bêta 0.2.0-beta.1
+# Validation SpaceMouse Link
+
+## Correctif 0.2.0-beta.2
+
+Le contrôle de connexion Server remplace l'énumération privilégiée `Get-NetFirewallRule -PolicyStore ActiveStore` par la lecture COM `HNetCfg.FwPolicy2`. Les profils effectifs restent contrôlés avec `Get-NetFirewallProfile`. Aucun droit administrateur n'est ajouté à l'application et aucune règle n'est modifiée par ce contrôle.
+
+Les 27 tests passent, avec 20 cas de refus du pare-feu : protection absente, désactivée, ambiguë, portée restreinte, politique d'entreprise incompatible ou lecture impossible. La lecture réelle des profils et de la collection COM a été vérifiée dans une session Windows à intégrité moyenne. Sur ce poste Client sans règle Server, la connexion est bien refusée avec un message demandant l'étape USB prerequisite. La réussite avec la règle Server installée sur le PC de la SpaceMouse reste à confirmer sur ce poste.
+
+Référence de l'API : [Microsoft INetFwRule](https://learn.microsoft.com/en-us/windows/win32/api/netfw/nn-netfw-inetfwrule).
+
+Le binaire reconstruit a également passé les diagnostics embarqués de démarrage et de transfert direct synthétique, sans élévation et sans serveur STUN. Ces essais ne remplacent pas le test matériel entre les deux postes.
+
+## Validation précédente : 0.2.0-beta.1
 
 Vérifications effectuées le 12 octobre 2026 sur Windows x64.
 

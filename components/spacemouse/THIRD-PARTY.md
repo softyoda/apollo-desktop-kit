@@ -6,7 +6,7 @@ The app does not use media encoding, but aiortc imports PyAV and these binary de
 
 Corresponding source and build instructions are available without charge at the links below, alongside the binary download in the release notes:
 
-- **This application:** the GitHub source archive for the same `spacemouse-v0.2.0-beta.1` tag. `build.ps1`, `SpaceMouseLink.spec` and `requirements.lock.txt` define the application build.
+- **This application:** use the source snapshot matching the binary version. The `0.2.0-beta.2` build is accompanied by `SpaceMouseLink-Source-0.2.0-beta.2.zip` and the GitHub source archive for the `spacemouse-v0.2.0-beta.2` tag. `build.ps1`, `SpaceMouseLink.spec` and `requirements.lock.txt` define the application build.
 - **PyAV 17.1.0:** [source](https://github.com/PyAV-Org/PyAV/tree/v17.1.0), [source archive](https://github.com/PyAV-Org/PyAV/archive/refs/tags/v17.1.0.tar.gz), [Windows wheel workflow](https://github.com/PyAV-Org/PyAV/blob/v17.1.0/.github/workflows/tests.yml).
 - **FFmpeg 8.1.1 and bundled codec libraries:** [complete upstream build recipes, patches and source URLs](https://github.com/PyAV-Org/pyav-ffmpeg/tree/8.1.1-2), [recipe archive](https://github.com/PyAV-Org/pyav-ffmpeg/archive/refs/tags/8.1.1-2.tar.gz), [exact source package definitions](https://github.com/PyAV-Org/pyav-ffmpeg/blob/8.1.1-2/scripts/pkg.py). This is the build selected by [PyAV's pinned vendor configuration](https://github.com/PyAV-Org/PyAV/blob/v17.1.0/scripts/ffmpeg-latest.json).
 - **FFmpeg source:** https://ffmpeg.org/releases/ffmpeg-8.1.1.tar.xz

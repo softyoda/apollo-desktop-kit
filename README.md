@@ -1,77 +1,103 @@
 # Apollo Desktop Kit
 
-Retrouver son poste de travail sur plusieurs écrans, depuis un portable Windows ou Linux : un flux Moonlight par écran, des résolutions indépendantes, un presse-papiers partagé et un lancement unique.
+**Votre poste de travail à distance : plusieurs écrans, un presse-papiers partagé et votre SpaceMouse.**
 
-Ce dépôt documente un montage de bureau concret et fournit les scripts pour le reproduire. Il ne remplace pas Apollo, Apollo Fleet Launcher, Moonlight ou CrossPaste. Les archives téléchargées directement sont figées et leurs SHA-256 vérifiés dans [`packages.json`](packages.json). Pour une nouvelle installation CrossPaste sous Windows, le kit utilise le Microsoft Store officiel : sa version et ses mises à jour sont gérées par le Store.
+Quatre composants séparés pour préparer le poste Apollo, lancer les écrans Moonlight, synchroniser le presse-papiers avec CrossPaste et transmettre une SpaceMouse Compact USB. Choisissez les composants utiles : **SpaceMouse Link fonctionne aussi avec Parsec, sans installer Apollo ou Moonlight.**
 
-## Composants séparés
+## Télécharger
 
-| Composant | Sources et documentation | Usage |
+| Besoin | Téléchargement | Où l'installer |
 |---|---|---|
-| Apollo Server | [`components/apollo-server`](components/apollo-server) | Hôte, Fleet, écrans et résolutions |
-| Moonlight scripts | [`components/moonlight`](components/moonlight) | Installation client et lancement multi-écrans |
-| Clipboard | [`components/clipboard`](components/clipboard) | Presse-papiers CrossPaste |
-| SpaceMouse Link | [`components/spacemouse`](components/spacemouse) | Compact USB à distance, appairage explicite, direct chiffré et icône de notification |
+| Client Moonlight et scripts multi-écrans | [Apollo-Setup.cmd · v0.2.3](https://github.com/softyoda/apollo-desktop-kit/releases/download/v0.2.3/Apollo-Setup.cmd) | PC depuis lequel vous travaillez |
+| Partager la SpaceMouse physique | [SpaceMouse Link **Server** · 0.2.0-beta.2](https://github.com/softyoda/apollo-desktop-kit/releases/download/spacemouse-v0.2.0-beta.2/SpaceMouseLink-Server-0.2.0-beta.2-x64.exe) | PC où la SpaceMouse est branchée |
+| Recevoir la SpaceMouse dans le CAD | [SpaceMouse Link **Client** · 0.2.0-beta.2](https://github.com/softyoda/apollo-desktop-kit/releases/download/spacemouse-v0.2.0-beta.2/SpaceMouseLink-Client-0.2.0-beta.2-x64.exe) | Poste distant qui exécute le CAD |
 
-**SpaceMouse Link :** les installateurs Server et Client sont disponibles dans les [Releases](https://github.com/softyoda/apollo-desktop-kit/releases). Le Server USB est le PC où la SpaceMouse est branchée ; le Client USB est celui qui exécute le CAD. Ce sont des rôles indépendants d'Apollo/Moonlight. Voir [installation et appairage](components/spacemouse/README.md) et [sécurité et limites](components/spacemouse/SECURITY.md). Les installateurs publics ne contiennent aucune clé privée.
+SpaceMouse Link est une **bêta Windows x64**, pour la **3Dconnexion SpaceMouse Compact USB**. Installez un rôle sur chaque poste. Consultez les [notes de version et SHA-256](https://github.com/softyoda/apollo-desktop-kit/releases/tag/spacemouse-v0.2.0-beta.2).
 
-Les dossiers `windows/` et `linux/` à la racine conservent les anciens points d'entrée pour les commandes et raccourcis existants ; les implémentations sont rangées par composant. Les primitives partagées restent dans `windows/Common.ps1` et `lib/`.
+**Correctif 0.2.0-beta.2 :** corrige le refus d'accès lors du contrôle du pare-feu Server sans élévation. Voir la [validation du correctif](components/spacemouse/VALIDATION.md).
 
-## Le montage de référence
+## Vous utilisez déjà Parsec ou Moonlight ?
 
-| Écran du client | Instance distante | Source sur le poste de travail | Flux | Affichage local |
-|---|---|---|---|---|
-| Portable à gauche, principal | Screen2 | Écran virtuel Apollo | 1920 × 1008 | Fenêtre |
-| Écran externe à droite, secondaire, 2560 × 1080 | Screen1 | Écran principal physique ou dongle HDMI du GPU | 3200 × 1350 | Plein écran sans bordures |
+<img src="components/spacemouse/assets/spacemouse.png" width="80" height="80" align="right" alt="Icône SpaceMouse Link">
 
-Le facteur **1,25** concerne ici la résolution du flux : 2560 × 1,25 = 3200 et 1080 × 1,25 = 1350. On calcule une image plus grande, puis on l'affiche sur l'écran local. Ce n'est pas le réglage Windows « texte et applications à 125 % ».
+Installez uniquement **SpaceMouse Link** pour utiliser votre Compact et ses boutons sur le poste distant, avec 3DxWare et les profils de vos logiciels.
+
+1. Installez **Server** sur le PC avec la SpaceMouse et **Client** sur le poste CAD. L'étape **USB prerequisite**, optionnelle et décochée par défaut, installe/configure les pilotes nécessaires avec une autorisation administrateur.
+2. Sur Server, sélectionnez la Compact puis **Prepare USB device**. Sur Client, installez/configurez **3DxWare**.
+3. Sur Server, ouvrez **Pairing → Create invitation → Copy invitation**. Transmettez l'invitation par un canal de confiance et collez-la dans **Pairing** sur Client. Elle expire après cinq minutes.
+4. Cliquez **Pair with server**, comparez le code sur **les deux écrans**, puis approuvez des deux côtés uniquement si les codes correspondent.
+5. Cliquez **Connect** sur les deux postes. Vérifiez la navigation et les boutons dans 3Dconnexion Trainer, puis dans votre logiciel.
+
+**Au quotidien :** l'icône dans la zone de notification permet d'ouvrir, connecter, déconnecter ou quitter l'application. Les préférences proposent le démarrage avec Windows, la connexion automatique au dernier partenaire approuvé et le maintien en arrière-plan quand la fenêtre est fermée. Un désinstallateur est fourni. L'application s'exécute sans droits administrateur.
+
+Le tunnel privilégie une connexion **DIRECT** chiffrée et utilise un **RELAY** chiffré si le réseau empêche la connexion directe. SpaceMouse Link ne nécessite ni VPN ni redirection manuelle de ports sur la box. Des services publics de rendez-vous et de découverte interviennent dans l'établissement de la connexion. Le transport et son RTT sont affichés ; ce RTT ne mesure pas le délai complet entre votre geste et l'image du logiciel distant.
+
+→ [Installation, appairage, préférences et désinstallation de SpaceMouse Link](components/spacemouse/README.md)
+
+## Vous souhaitez installer le bureau multi-écrans ?
+
+1. **Préparez le poste Windows distant.** Depuis les sources du dépôt, lancez `Install-host.cmd` et suivez le [guide Apollo Server](docs/windows-host.md) pour Apollo, Fleet et les écrans.
+2. **Préparez votre PC Windows local.** Téléchargez puis lancez `Apollo-Setup.cmd`. L'assistant installe les applications nécessaires, prépare le profil d'écrans et crée le raccourci de lancement.
+3. **Associez les applications.** Associez chaque instance Apollo dans Moonlight, renseignez les noms des hôtes dans le profil et associez les deux PC dans CrossPaste pour le presse-papiers.
+4. **Lancez votre bureau.** Le raccourci ouvre un flux Moonlight par écran avec les résolutions et placements du profil.
+
+Pour Linux, suivez le [guide client Linux](docs/linux-client.md). Pour adapter les résolutions ou distribuer un lanceur préconfiguré, consultez le [montage de référence](docs/reference-setup.md) et le [profil à deux écrans](examples/two-screens.json).
+
+Les flux affichent **le même bureau Windows étendu**, pas des sessions utilisateurs indépendantes. Apollo/Moonlight et CrossPaste utilisent leur propre connexion : le parcours documenté repose sur le LAN ou un VPN autorisé. Le tunnel SpaceMouse ne transporte ni la vidéo ni le presse-papiers. Voir le [guide réseau](docs/network.md).
+
+## Quel composant va sur quel PC ?
+
+| Composant | PC local, devant vous | Poste de travail distant | Sources |
+|---|---|---|---|
+| **Apollo Server** | — | Hôte vidéo, Fleet, écrans et résolutions | [apollo-server](components/apollo-server) |
+| **Moonlight scripts** | Client vidéo, profils et placement des fenêtres | — | [moonlight](components/moonlight) |
+| **Clipboard** | CrossPaste | CrossPaste | [clipboard](components/clipboard) |
+| **SpaceMouse Link** | **Server USB**, avec la Compact branchée | **Client USB**, avec le CAD et 3DxWare | [spacemouse](components/spacemouse) |
+
+Les rôles **Server/Client de SpaceMouse désignent le sens du partage USB** : ils sont indépendants des rôles du streaming vidéo.
 
 ```mermaid
 flowchart LR
-  subgraph H[Poste de travail Windows — hôte]
-    P[Écran principal / dongle] --> A[Apollo Screen1]
-    V[Écran virtuel] --> B[Apollo Screen2]
-    CH[CrossPaste]
+  subgraph LOCAL[PC local]
+    M[Moonlight]
+    CL[CrossPaste]
+    S[SpaceMouse Link Server + Compact USB]
   end
-  subgraph C[Portable — client]
-    M1[Moonlight à droite]
-    M2[Moonlight à gauche]
-    CC[CrossPaste]
+  subgraph REMOTE[Poste de travail distant]
+    A[Apollo + Fleet]
+    CR[CrossPaste]
+    C[SpaceMouse Link Client + 3DxWare + CAD]
   end
-  A -->|LAN ou VPN| M1
-  B -->|LAN ou VPN| M2
-  CH <-->|Texte, HTML, RTF, images, fichiers| CC
+  A -->|Vidéo multi-écrans| M
+  CL <-->|Presse-papiers et fichiers| CR
+  S <-->|USB chiffré : direct ou relais| C
 ```
 
-Les deux instances montrent **le même bureau Windows étendu**. Elles ne créent pas deux utilisateurs ou deux sessions Windows isolées. Ce montage convient à une personne utilisant sa station ; deux collègues ne doivent pas piloter simultanément la même session en pensant disposer chacun d'un bureau indépendant.
+## Sécurité et limites de SpaceMouse Link
 
-## Démarrage rapide pour un collègue
+Les installateurs publics ne contiennent aucune clé d'appairage. Une identité est créée localement ; après vérification sur les deux écrans, chaque profil n'accepte que la clé du partenaire enregistré. Les secrets sont protégés par Windows DPAPI pour le compte utilisateur courant. **Forget trusted peer** permet de révoquer l'association.
 
-**Client Windows simplifié :** télécharger `Apollo-Setup.cmd` dans les [Releases](https://github.com/softyoda/apollo-desktop-kit/releases), puis double-cliquer. Le fichier contient les scripts nécessaires, installe les applications dans le compte utilisateur, prépare le profil et crée **Apollo - Mes ecrans**. Inutile d'extraire un ZIP ou de conserver plusieurs scripts côte à côte. Lors de la première installation, renseigner les noms des hôtes Moonlight puis associer CrossPaste une fois ; les bureaux distants sont ouverts avant cette association pour voir le code de l'hôte sans autre outil distant. Les autorisations Windows éventuelles restent visibles.
+L'étape USB optionnelle vérifie le hash et la signature des installateurs officiels et bloque les accès réseau non locaux au port USB TCP 3240 sur Server. Les pilotes et cette protection restent installés après désinstallation de l'application. Aucun redémarrage automatique n'est effectué ; le pilote Client peut nécessiter un redémarrage manuel.
 
-Pour distribuer un fichier déjà personnalisé, avec les noms/résolutions de son équipe :
+La bêta dispose de tests de protocole, d'appairage et de refus d'un partenaire non autorisé. **Elle n'a pas fait l'objet d'un audit de sécurité indépendant.** Le prototype a fonctionné avec une vraie Compact ; la nouvelle distribution reste à valider sur les deux PC de déploiement. Les autres modèles ne sont pas validés, la connexion directe dépend du réseau et la latence n'est pas garantie. Les exécutables personnalisés ne sont pas signés commercialement. Une migration depuis le prototype nécessite une mise à jour des deux postes et un nouvel appairage.
 
-```powershell
-.\windows\Build-SingleFile.ps1 -ProfilePath .\profile.local.json -OutFile .\Mon-bureau.cmd
+→ [Modèle de sécurité](components/spacemouse/SECURITY.md) · [Validation SpaceMouse](components/spacemouse/VALIDATION.md)
+
+## Organisation des sources
+
+```text
+components/
+  apollo-server/   Installation hôte, écrans et résolutions
+  moonlight/       Installation client, profils et lancement
+  clipboard/      Intégration CrossPaste
+  spacemouse/     Application USB, appairage et installateurs
+docs/             Guides du kit
+examples/         Profils d'écrans
+windows/, linux/  Points d'entrée compatibles avec les anciennes commandes
+lib/              Primitives Windows partagées
 ```
 
-L'application hôte et les associations Moonlight doivent déjà exister. Le kit ne peut pas deviner ni transférer leurs certificats. Les instructions détaillées ci-dessous restent disponibles pour configurer l'hôte ou adapter le montage.
-
-1. Télécharger le ZIP de ce dépôt et l'extraire dans un dossier permanent.
-2. Sur le **poste de travail Windows**, lancer `Install-host.cmd`, puis suivre [la configuration de l'hôte](docs/windows-host.md). Les installateurs Apollo/Fleet restent interactifs pour les pilotes et l'élévation Windows.
-3. Sur le **portable Windows**, lancer `Install-client.cmd`. Il installe Moonlight si nécessaire, CrossPaste, un profil détectant les écrans et un raccourci sur le bureau. Voir [le guide client](docs/windows-client.md).
-4. Associer une fois chaque instance dans Moonlight, puis associer les deux PC dans CrossPaste avec le code affiché par le PC destinataire.
-5. Modifier les noms des hôtes dans le profil client pour qu'ils correspondent à ceux de Moonlight. Lancer ensuite **Apollo - My screens**.
-
-Pour reprendre directement l'exemple ci-dessus depuis PowerShell :
-
-```powershell
-Copy-Item .\examples\two-screens.json .\profile.local.json
-# Remplacer Screen1 et Screen2 dans ce fichier par les noms associés dans Moonlight.
-powershell -NoProfile -ExecutionPolicy Bypass -File .\windows\Install-Client.ps1 -ProfilePath .\profile.local.json -PairClipboard
-```
-
-Conserver le dossier contenant `profile.local.json` : le raccourci le référence. Les téléchargements représentent plusieurs centaines de Mo. L'installateur client utilise le compte Windows courant, sans demander un mot de passe administrateur pour les archives portables.
+Les versions des applications téléchargées directement et leurs SHA-256 sont définis dans [packages.json](packages.json). CrossPaste pour une nouvelle installation Windows provient du Microsoft Store, qui gère ses mises à jour. Les dépendances SpaceMouse sont décrites dans son [guide de développement](components/spacemouse/README.md#développer).
 
 ## Guides
 
@@ -101,7 +127,7 @@ Conserver le dossier contenant `profile.local.json` : le raccourci le référenc
 
 ## Versions, contributions et publication
 
-Le kit est distribué sous licence MIT. Les applications téléchargées conservent leurs licences respectives ; leurs binaires ne sont pas inclus dans le dépôt. Les scripts ne collectent aucun certificat d'association, clé VPN ou mot de passe.
+Le code original du kit est sous licence MIT. Le bundle Windows SpaceMouse Link relève de la GPL-3.0-or-later : voir les [licences et sources correspondantes](components/spacemouse/THIRD-PARTY.md). Les applications téléchargées conservent leurs licences respectives ; leurs binaires ne sont pas inclus dans le dépôt. Les scripts ne collectent aucun certificat d'association, clé VPN ou mot de passe.
 
 Avant de proposer un profil, remplacer les noms de PC, adresses privées propres à votre entreprise et chemins personnels. Ne jamais publier les dossiers `%ProgramData%\ApolloFleet`, les données CrossPaste ou les paramètres d'association Moonlight.
 
