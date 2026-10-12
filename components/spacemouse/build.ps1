@@ -11,6 +11,7 @@ if($LASTEXITCODE){throw 'Tests failed'}
 & $Python -m PyInstaller --noconfirm SpaceMouseLink.spec
 if($LASTEXITCODE){throw 'App build failed'}
 & $Python collect_licenses.py
+Invoke-WebRequest 'https://www.gnu.org/licenses/gpl-3.0.txt' -OutFile licenses\GPL-3.0.txt
 foreach($role in @('server','client')) {
     & $Iscc ('/DRole='+$role) installer.iss
     if($LASTEXITCODE){throw 'Installer build failed'}

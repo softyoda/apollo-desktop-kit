@@ -53,6 +53,7 @@ Source: "Prepare-Device.ps1"; DestDir: "{app}"; Flags: ignoreversion
 Source: "Install-Driver.ps1"; Flags: dontcopy
 Source: "README.md"; DestDir: "{app}"; Flags: ignoreversion
 Source: "SECURITY.md"; DestDir: "{app}"; Flags: ignoreversion
+Source: "THIRD-PARTY.md"; DestDir: "{app}"; Flags: ignoreversion
 Source: "LICENSE"; DestDir: "{app}"; Flags: ignoreversion
 Source: "licenses\*"; DestDir: "{app}\licenses"; Flags: recursesubdirs createallsubdirs ignoreversion
 

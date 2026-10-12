@@ -58,4 +58,4 @@ python -m venv .venv
 
 Les builds ne génèrent aucune identité. Les tests unitaires ne nécessitent pas de périphérique. `tests/pairing_smoke.py`, `tests/relay_denied.py` et `tests/relay_smoke.py` utilisent le rendez-vous public avec des clés jetables et des octets synthétiques ; ne pas les lancer dans un réseau interdisant ces services.
 
-Les composants Python conservent leurs licences, collectées lors du build. Les pilotes amont ne sont pas redistribués dans l'installateur : leur installation optionnelle télécharge les versions officielles épinglées. Les binaires personnalisés de cette bêta ne sont pas signés commercialement.
+Le code original reste MIT. Le **bundle Windows relève de la GPL-3.0-or-later** à cause des bibliothèques FFmpeg/x264/x265 du wheel PyAV ; voir les [licences et sources correspondantes](THIRD-PARTY.md). Les pilotes amont ne sont pas redistribués dans l'installateur : leur installation optionnelle télécharge les versions officielles épinglées. Les binaires personnalisés de cette bêta ne sont pas signés commercialement.
