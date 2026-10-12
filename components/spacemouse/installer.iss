@@ -40,6 +40,8 @@ SolidCompression=yes
 CloseApplications=yes
 CloseApplicationsFilter=SpaceMouseLink.exe
 RestartApplications=no
+AlwaysRestart=no
+RestartIfNeededByRun=no
 DisableProgramGroupPage=yes
 Uninstallable=yes
 
@@ -72,7 +74,7 @@ Type: files; Name: "{localappdata}\SpaceMouseLink\{#Role}\latency.json"
 Type: dirifempty; Name: "{localappdata}\SpaceMouseLink\{#Role}"
 
 [Code]
-var PrerequisiteInstalled: Boolean;
+var PrerequisiteInstalled, DriverRestartRecommended: Boolean;
 
 function PrepareToInstall(var NeedsRestart: Boolean): String;
 var Driver, Args: String; Code: Integer; AlreadyInstalled: Boolean;
@@ -91,11 +93,18 @@ begin
       Result := 'USB prerequisite failed. Check the network, administrator permissions and Windows Firewall, then retry.'
     else begin
       PrerequisiteInstalled := True;
-      if ('{#Role}' = 'client') and not AlreadyInstalled then NeedsRestart := True;
+      if ('{#Role}' = 'client') and not AlreadyInstalled then DriverRestartRecommended := True;
     end;
   except
     Result := GetExceptionMessage;
   end;
+end;
+
+procedure CurPageChanged(CurPageID: Integer);
+begin
+  if (CurPageID = wpFinished) and DriverRestartRecommended then
+    WizardForm.FinishedLabel.Caption := WizardForm.FinishedLabel.Caption + #13#10#13#10 +
+      'Please restart this computer manually when convenient before using the new USB driver. Setup will not restart it.';
 end;
 
 procedure CurUninstallStepChanged(CurUninstallStep: TUninstallStep);
