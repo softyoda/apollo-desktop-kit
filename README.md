@@ -4,6 +4,19 @@ Retrouver son poste de travail sur plusieurs écrans, depuis un portable Windows
 
 Ce dépôt documente un montage de bureau concret et fournit les scripts pour le reproduire. Il ne remplace pas Apollo, Apollo Fleet Launcher, Moonlight ou CrossPaste. Les archives téléchargées directement sont figées et leurs SHA-256 vérifiés dans [`packages.json`](packages.json). Pour une nouvelle installation CrossPaste sous Windows, le kit utilise le Microsoft Store officiel : sa version et ses mises à jour sont gérées par le Store.
 
+## Composants séparés
+
+| Composant | Sources et documentation | Usage |
+|---|---|---|
+| Apollo Server | [`components/apollo-server`](components/apollo-server) | Hôte, Fleet, écrans et résolutions |
+| Moonlight scripts | [`components/moonlight`](components/moonlight) | Installation client et lancement multi-écrans |
+| Clipboard | [`components/clipboard`](components/clipboard) | Presse-papiers CrossPaste |
+| SpaceMouse Link | [`components/spacemouse`](components/spacemouse) | Compact USB à distance, appairage explicite, direct chiffré et icône de notification |
+
+**SpaceMouse Link :** les installateurs Server et Client sont disponibles dans les [Releases](https://github.com/softyoda/apollo-desktop-kit/releases). Le Server USB est le PC où la SpaceMouse est branchée ; le Client USB est celui qui exécute le CAD. Ce sont des rôles indépendants d'Apollo/Moonlight. Voir [installation et appairage](components/spacemouse/README.md) et [sécurité et limites](components/spacemouse/SECURITY.md). Les installateurs publics ne contiennent aucune clé privée.
+
+Les dossiers `windows/` et `linux/` à la racine conservent les anciens points d'entrée pour les commandes et raccourcis existants ; les implémentations sont rangées par composant. Les primitives partagées restent dans `windows/Common.ps1` et `lib/`.
+
 ## Le montage de référence
 
 | Écran du client | Instance distante | Source sur le poste de travail | Flux | Affichage local |

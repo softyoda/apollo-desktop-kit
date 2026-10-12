@@ -1,0 +1,30 @@
+SpaceMouse Link - first public beta
+
+Server: install on the computer with the USB SpaceMouse Compact.
+Client: install on the computer running your CAD application and 3DxWare.
+
+Select the optional USB prerequisite task if the driver is not already prepared.
+It downloads pinned, signature-checked upstream installers from GitHub. On Server,
+it also blocks non-local access to USB port 3240 and enables the USB service.
+Initial Client driver installation can briefly restart USB hubs and may require
+a planned reboot. Save your work first. No computer is restarted automatically.
+
+The app runs as a normal Windows user. The Server's Prepare USB device action
+requests administrator permission once for the selected SpaceMouse Compact.
+
+Public installers contain NO pairing keys. Create an invitation on Server,
+paste it on Client, and compare/approve the same code on BOTH computers.
+Only the saved peer identity is accepted in subsequent connections.
+
+Launch at sign-in and automatic connection are optional, off by default.
+Closing the window normally keeps the app in the Windows notification area.
+Use its Quit menu to disconnect and exit.
+
+See SECURITY.md for protections, threat model and limits. This is tested software,
+not an independently audited or formally verified security product. Custom binaries
+are unsigned; upstream driver installers are signature-checked.
+
+Uninstall removes the app, current user's settings and logon entry for this role.
+USB drivers and the protective firewall rule remain because other software may
+use them. Remove native drivers separately through Windows Apps if no longer used.
+Other Windows users must remove their own per-user pairing/settings.

@@ -10,3 +10,13 @@ profile.local.json
 host-layout.local.json
 Apollo-Setup.cmd
 __pycache__/
+*.dpapi
+*.dpapi.tmp
+*.private.json
+components/spacemouse/.venv/
+components/spacemouse/build/
+components/spacemouse/dist/
+components/spacemouse/release/
+components/spacemouse/licenses/
+components/spacemouse/*-result.json
+components/spacemouse/*-check.json
